@@ -5,7 +5,15 @@ import StatsBar from '@/components/StatsBar';
 import { fetchFestivals, fetchFestivalStats, fetchFestivalTypes } from '@/lib/api';
 import { Festival } from '@/types';
 import { Loader2 } from 'lucide-react';
+import { Metadata } from 'next';
 import { Suspense } from 'react';
+
+// Page-specific metadata (will be merged with layout metadata)
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
 
 interface StatsData {
   total: number;
@@ -47,22 +55,61 @@ function LoadingFallback() {
   );
 }
 
+// Site URL from environment variable
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://videogame-festival-front.vercel.app';
+
+// Generate JSON-LD structured data for homepage (ItemList of events)
+function generateHomePageJsonLd(festivals: Festival[], stats: StatsData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Indie Game Festivals & Events',
+    description: `Discover ${stats.total} indie game festivals, showcases, and awards. ${stats.openSubmissions || 0} currently accepting submissions.`,
+    numberOfItems: festivals.length,
+    itemListElement: festivals.slice(0, 20).map((festival, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Event',
+        name: festival.name,
+        description: festival.enrichment?.description || `${festival.name} - ${festival.type}`,
+        url: `${SITE_URL}/events/${festival.slug || festival._id}`,
+        eventStatus: festival.submissionOpen
+          ? 'https://schema.org/EventScheduled'
+          : 'https://schema.org/EventPostponed',
+      },
+    })),
+  };
+}
+
 export default async function Home() {
   const { festivals, stats, types } = await getData();
 
-  return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header />
-      
-      <main id="events">
-        <StatsBar stats={stats} />
-        
-        <Suspense fallback={<LoadingFallback />}>
-          <EventsGrid initialFestivals={festivals} types={types} />
-        </Suspense>
-      </main>
+  const jsonLd = generateHomePageJsonLd(festivals, stats);
 
-      <Footer />
-    </div>
+  return (
+    <>
+      {/* JSON-LD Structured Data for rich search results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
+      
+      <div className="min-h-screen bg-gray-950 text-white">
+        <Header />
+        
+        <main id="events">
+          <StatsBar stats={stats} />
+          
+          <Suspense fallback={<LoadingFallback />}>
+            <EventsGrid initialFestivals={festivals} types={types} />
+          </Suspense>
+        </main>
+
+        <Footer />
+      </div>
+    </>
   );
 }

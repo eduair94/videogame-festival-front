@@ -34,6 +34,18 @@ export async function fetchFestivalById(id: string) {
   return res.json();
 }
 
+export async function fetchFestivalBySlug(slug: string) {
+  const res = await fetch(`${API_BASE_URL}/api/festivals/slug/${slug}`, {
+    next: { revalidate: 300 },
+  });
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch festival');
+  }
+  
+  return res.json();
+}
+
 export async function fetchFestivalStats() {
   const res = await fetch(`${API_BASE_URL}/api/festivals/stats`, {
     next: { revalidate: 600 },

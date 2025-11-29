@@ -1,4 +1,5 @@
-import { fetchFestivalById } from '@/lib/api';
+import { AIEnrichmentSection } from '@/components';
+import { fetchFestivalBySlug } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Festival } from '@/types';
 import {
@@ -22,26 +23,143 @@ import {
   Users,
   Zap
 } from 'lucide-react';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
-async function getEventData(id: string): Promise<Festival | null> {
+async function getEventData(slug: string): Promise<Festival | null> {
   try {
-    const res = await fetchFestivalById(id);
+    const res = await fetchFestivalBySlug(slug);
     return res.data;
   } catch {
     return null;
   }
 }
 
+// Generate dynamic metadata for SEO
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const festival = await getEventData(slug);
+
+  if (!festival) {
+    return {
+      title: 'Event Not Found',
+      description: 'The event you are looking for could not be found.',
+    };
+  }
+
+  const isOpen = festival.submissionOpen === true;
+  const deadline = festival.deadline;
+  const type = festival.type;
+  const description = festival.enrichment?.description
+    ? festival.enrichment.description.slice(0, 155) + (festival.enrichment.description.length > 155 ? '...' : '')
+    : `Discover ${festival.name}, a ${type} event for indie game developers. ${isOpen ? 'Submissions are currently open!' : 'Check back for future submission dates.'}`;
+
+  const ogImage = festival.enrichment?.imageUrl || '/og-image.png';
+  const deadlineText = deadline ? ` • Deadline: ${formatDate(deadline)}` : '';
+  const statusText = isOpen ? '🟢 Open' : '🔴 Closed';
+
+  return {
+    title: festival.name,
+    description,
+    keywords: [
+      festival.name.toLowerCase(),
+      type.toLowerCase(),
+      'indie games',
+      'game festival',
+      'game submissions',
+      'indie developers',
+      festival.enrichment?.organizer?.toLowerCase(),
+      festival.enrichment?.location?.toLowerCase(),
+    ].filter(Boolean) as string[],
+    openGraph: {
+      type: 'article',
+      title: `${festival.name} - ${type}`,
+      description: `${statusText}${deadlineText} • ${description}`,
+      url: `/events/${slug}`,
+      siteName: 'GameEvents',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${festival.name} - ${type} for Indie Games`,
+        },
+      ],
+      publishedTime: festival.createdAt,
+      modifiedTime: festival.updatedAt,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${festival.name} - ${type}`,
+      description: `${statusText}${deadlineText} • ${description}`,
+      images: [ogImage],
+    },
+    alternates: {
+      canonical: `/events/${slug}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+// Site URL from environment variable
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://videogame-festival-front.vercel.app';
+
+// Generate JSON-LD structured data for events
+function generateEventJsonLd(festival: Festival) {
+  const isOpen = festival.submissionOpen === true;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: festival.name,
+    description: festival.enrichment?.description || `${festival.name} - ${festival.type} for indie game developers`,
+    eventStatus: isOpen ? 'https://schema.org/EventScheduled' : 'https://schema.org/EventPostponed',
+    eventAttendanceMode: festival.enrichment?.location
+      ? 'https://schema.org/MixedEventAttendanceMode'
+      : 'https://schema.org/OnlineEventAttendanceMode',
+    location: festival.enrichment?.location
+      ? {
+          '@type': 'Place',
+          name: festival.enrichment.location,
+        }
+      : {
+          '@type': 'VirtualLocation',
+          url: festival.eventOfficialPage || SITE_URL,
+        },
+    organizer: festival.enrichment?.organizer
+      ? {
+          '@type': 'Organization',
+          name: festival.enrichment.organizer,
+        }
+      : undefined,
+    image: festival.enrichment?.imageUrl,
+    url: festival.eventOfficialPage,
+    offers: festival.price
+      ? {
+          '@type': 'Offer',
+          price: festival.price === 'Free' ? '0' : festival.price,
+          priceCurrency: 'USD',
+          availability: isOpen
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/SoldOut',
+        }
+      : undefined,
+    isAccessibleForFree: festival.price === 'Free',
+  };
+}
+
 export default async function EventPage({ params }: PageProps) {
-  const { id } = await params;
-  const festival = await getEventData(id);
+  const { slug } = await params;
+  const festival = await getEventData(slug);
 
   if (!festival) {
     notFound();
@@ -92,8 +210,20 @@ export default async function EventPage({ params }: PageProps) {
 
   const urgency = getUrgencyLevel();
 
+  // Generate structured data for SEO
+  const jsonLd = generateEventJsonLd(festival);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <>
+      {/* JSON-LD Structured Data for rich search results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
+      
+      <div className="min-h-screen bg-gray-950 text-white">
       {/* Clean Navigation Header */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -409,13 +539,20 @@ export default async function EventPage({ params }: PageProps) {
                 </div>
               </div>
             </section>
+
+            {/* AI-Generated Insights Section */}
+            {festival.aiEnrichment && festival.aiEnrichment.enrichmentStatus === 'enriched' && (
+              <AIEnrichmentSection aiEnrichment={festival.aiEnrichment} />
+            )}
           </div>
 
           {/* Right Column - Actions Sidebar */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2">
+            {/* Sticky wrapper for both cards */}
+            <div className="lg:sticky lg:top-20 space-y-5">
             
             {/* Action Buttons Card */}
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-5 lg:sticky lg:top-20">
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-5">
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Take Action</h2>
               
               <div className="space-y-3">
@@ -528,6 +665,7 @@ export default async function EventPage({ params }: PageProps) {
                 </li>
               </ul>
             </section>
+            </div>
           </div>
         </div>
       </main>
@@ -566,5 +704,6 @@ export default async function EventPage({ params }: PageProps) {
         </div>
       </footer>
     </div>
+    </>
   );
 }

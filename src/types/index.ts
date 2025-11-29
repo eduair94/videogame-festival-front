@@ -11,6 +11,43 @@ export interface Enrichment {
   lastCheckedAt?: string;
 }
 
+export interface FeaturedGame {
+  title: string;
+  developer?: string;
+  genre?: string;
+  imageUrl?: string | null;
+  steamUrl?: string | null;
+}
+
+export interface AIEnrichment {
+  entity?: string;
+  type?: string;
+  status?: string;
+  overview?: {
+    description?: string;
+    primaryPlatform?: string;
+    organizers?: string[];
+    objective?: string;
+    bannerImageUrl?: string | null;
+  };
+  eventDetails?: {
+    currentEdition?: string;
+    typicalDuration?: string;
+    offerings?: string[];
+  };
+  keyParticipants?: {
+    notableStudios?: string[];
+    featuredGames?: FeaturedGame[];
+  };
+  industryContext?: {
+    location?: string;
+    significance?: string;
+  };
+  version?: number;
+  enrichedAt?: string;
+  enrichmentStatus?: 'enriched' | 'failed' | 'pending';
+}
+
 export interface DateRange {
   start?: string;
   end?: string;
@@ -21,6 +58,7 @@ export interface Festival {
   _id: string;
   name: string;
   type: string;
+  slug?: string;
   frequency?: string;
   submissionDates?: DateRange;
   eventDates?: DateRange;
@@ -31,6 +69,7 @@ export interface Festival {
   source?: 'curated' | 'on-the-fence';
   category?: 'curated' | 'on-the-fence';
   enrichment?: Enrichment;
+  aiEnrichment?: AIEnrichment;
   createdAt?: string;
   updatedAt?: string;
   // New fields from API

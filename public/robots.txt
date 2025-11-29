@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://videogame-festival-front.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

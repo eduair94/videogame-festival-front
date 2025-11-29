@@ -2,15 +2,18 @@
 
 import { formatDate } from '@/lib/utils';
 import { Festival } from '@/types';
-import { Calendar, CheckCircle, Clock, DollarSign, ExternalLink, Gamepad2, MapPin, Timer, Trophy, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, DollarSign, ExternalLink, Gamepad2, Info, MapPin, Timer, Trophy, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
 interface EventCardProps {
   festival: Festival;
 }
 
 export default function EventCard({ festival }: EventCardProps) {
+  const [showComments, setShowComments] = useState(false);
+  
   // Use API fields directly
   const isOpen = festival.submissionOpen === true;
   const daysToSubmit = festival.daysToSubmit ?? null;
@@ -87,8 +90,11 @@ export default function EventCard({ festival }: EventCardProps) {
   const placeholderImage = `https://placehold.co/600x400/1a1a2e/9333ea?text=${encodeURIComponent(festival.name.substring(0, 20))}`;
   const imageUrl = festival.enrichment?.imageUrl || placeholderImage;
 
+  // Use slug for SEO-friendly URLs, fallback to _id for backwards compatibility
+  const eventUrl = festival.slug ? `/events/${festival.slug}` : `/events/${festival._id}`;
+
   return (
-    <Link href={`/events/${festival._id}`} className="block h-full">
+    <Link href={eventUrl} className="block h-full">
       <article className="group relative bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 h-full flex flex-col min-h-[420px]">
         {/* Image Section - Fixed height */}
         <div className="relative h-40 shrink-0 overflow-hidden">
@@ -130,6 +136,33 @@ export default function EventCard({ festival }: EventCardProps) {
           <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[2.5rem]">
             {festival.enrichment?.description || 'No description available'}
           </p>
+
+          {/* Comments/Notes - Expandable */}
+          {festival.comments && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowComments(!showComments);
+                }}
+                className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                <Info className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {showComments ? 'Hide notes' : 'Important notes'}
+                </span>
+              </button>
+              {showComments && (
+                <div className="mt-2 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <p className="text-xs text-amber-200/90 leading-relaxed">
+                    {festival.comments}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Info Grid - Consistent spacing */}
           <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-xs mb-4">
