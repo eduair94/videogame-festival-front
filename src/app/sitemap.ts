@@ -1,6 +1,6 @@
-import { MetadataRoute } from 'next';
 import { fetchFestivals } from '@/lib/api';
 import { Festival } from '@/types';
+import { MetadataRoute } from 'next';
 
 // Use environment variable for site URL, fallback to Vercel deployment
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://videogame-festival-front.vercel.app';
