@@ -415,7 +415,7 @@ export default async function EventPage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-5">
             
             {/* Action Buttons Card */}
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-5 sticky top-20">
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-5 lg:sticky lg:top-20">
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Take Action</h2>
               
               <div className="space-y-3">
