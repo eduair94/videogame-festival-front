@@ -3,24 +3,24 @@ import { fetchFestivalBySlug } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Festival } from '@/types';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Calendar,
-    CheckCircle2,
-    Clock,
-    DollarSign,
-    ExternalLink,
-    FileText,
-    Gamepad2,
-    Globe,
-    MapPin,
-    MessageCircle,
-    Star,
-    Timer,
-    Trophy,
-    Twitter,
-    Users,
-    Zap
+  AlertCircle,
+  ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  ExternalLink,
+  FileText,
+  Gamepad2,
+  Globe,
+  MapPin,
+  MessageCircle,
+  Star,
+  Timer,
+  Trophy,
+  Twitter,
+  Users,
+  Zap
 } from 'lucide-react';
 import { Metadata } from 'next';
 import Image from 'next/image';

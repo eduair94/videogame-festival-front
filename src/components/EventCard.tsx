@@ -13,7 +13,7 @@ interface EventCardProps {
 }
 
 export default function EventCard({ festival, onFilterChange }: EventCardProps) {
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   
   // Use API fields directly
   const isOpen = festival.submissionOpen === true;
