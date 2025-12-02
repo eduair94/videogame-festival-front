@@ -2,7 +2,7 @@ import EventsGrid from '@/components/EventsGrid';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import StatsBar from '@/components/StatsBar';
-import { fetchFestivals, fetchFestivalStats, fetchFestivalTypes } from '@/lib/api';
+import { fetchFestivalStats, fetchFestivalTypes, fetchOpenFestivals } from '@/lib/api';
 import { Festival } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { Metadata } from 'next';
@@ -24,7 +24,7 @@ interface StatsData {
 async function getData() {
   try {
     const [festivalsRes, statsRes, typesRes] = await Promise.all([
-      fetchFestivals({ limit: 200 }),
+      fetchOpenFestivals(),
       fetchFestivalStats(),
       fetchFestivalTypes(),
     ]);

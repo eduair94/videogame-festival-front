@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -21,6 +22,10 @@ const siteConfig = {
   url: siteUrl,
   ogImage: "/og-image.png", // You'll need to create this
   twitterHandle: "@gameeventsdev", // Update with your actual Twitter handle
+  author: {
+    name: "Eduardo Airaudo",
+    linkedin: "https://www.linkedin.com/in/eduardo-airaudo/",
+  },
 };
 
 export const viewport: Viewport = {
@@ -56,8 +61,8 @@ export const metadata: Metadata = {
     "game developer events",
     "video game festivals",
   ],
-  authors: [{ name: siteConfig.name }],
-  creator: siteConfig.name,
+  authors: [{ name: siteConfig.author.name, url: siteConfig.author.linkedin }],
+  creator: siteConfig.author.name,
   publisher: siteConfig.name,
   formatDetection: {
     email: false,
@@ -144,6 +149,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950`}
       >
         {children}
+        <GoogleAnalytics gaId="G-RNTJ559BH1" />
       </body>
     </html>
   );

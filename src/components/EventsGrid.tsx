@@ -13,14 +13,16 @@ type ViewOption = 'all' | 'open' | 'upcoming' | 'deadlineSoon';
 interface EventsGridProps {
   initialFestivals: Festival[];
   types: string[];
+  initialView?: ViewOption;
 }
 
-export default function EventsGrid({ initialFestivals, types }: EventsGridProps) {
+export default function EventsGrid({ initialFestivals, types, initialView = 'open' }: EventsGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [festivals, setFestivals] = useState<Festival[]>(initialFestivals);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isInitialMount = useRef(true);
   
   // Get filters from URL query parameters
   const getFiltersFromURL = useCallback(() => {
@@ -117,7 +119,7 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
       if (filters.search && filters.view === 'all') {
         params.set('search', filters.search);
       }
-      params.set('limit', '200');
+      params.set('limit', '500');
       
       const url = filters.view === 'all' ? `${endpoint}?${params.toString()}` : endpoint;
       const res = await fetch(url);
@@ -136,9 +138,16 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
   }, [filters.view, filters.type, filters.search]);
 
   useEffect(() => {
-    // Always fetch on initial load and when filters change
+    // Skip initial fetch if view matches the initialView (data already loaded from server)
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      // Only skip if the current view matches the initial view and no other filters are active
+      if (filters.view === initialView && !filters.type && !filters.search) {
+        return;
+      }
+    }
     fetchFilteredFestivals();
-  }, [filters.view, filters.type, fetchFilteredFestivals]);
+  }, [filters.view, filters.type, filters.search, fetchFilteredFestivals, initialView]);
 
   // Client-side filtering and sorting using API fields
   const filteredFestivals = useMemo(() => {
@@ -242,43 +251,45 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
         currentFilters={filters}
       />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Results Summary */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-4">
-            <p className="text-gray-400">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <p className="text-gray-400 text-sm sm:text-base">
               Showing <span className="text-white font-medium">{filteredFestivals.length}</span> events
             </p>
-            {openCount > 0 && (
-              <button
-                onClick={() => updateFilters({ ...filters, view: 'open' })}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
-                  filters.view === 'open' 
-                    ? 'bg-green-500/30 text-green-300 ring-1 ring-green-500/50' 
-                    : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                }`}
-              >
-                <Clock className="w-3 h-3" />
-                {openCount} open
-              </button>
-            )}
-            {closingSoonCount > 0 && (
-              <button
-                onClick={() => updateFilters({ ...filters, view: 'deadlineSoon' })}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
-                  filters.view === 'deadlineSoon'
-                    ? 'bg-orange-500/30 text-orange-300 ring-1 ring-orange-500/50'
-                    : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 animate-pulse'
-                }`}
-              >
-                <Timer className="w-3 h-3" />
-                {closingSoonCount} closing soon
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {openCount > 0 && (
+                <button
+                  onClick={() => updateFilters({ ...filters, view: 'open' })}
+                  className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
+                    filters.view === 'open' 
+                      ? 'bg-green-500/30 text-green-300 ring-1 ring-green-500/50' 
+                      : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                  }`}
+                >
+                  <Clock className="w-3 h-3" />
+                  <span className="whitespace-nowrap">{openCount} open</span>
+                </button>
+              )}
+              {closingSoonCount > 0 && (
+                <button
+                  onClick={() => updateFilters({ ...filters, view: 'deadlineSoon' })}
+                  className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
+                    filters.view === 'deadlineSoon'
+                      ? 'bg-orange-500/30 text-orange-300 ring-1 ring-orange-500/50'
+                      : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 animate-pulse'
+                  }`}
+                >
+                  <Timer className="w-3 h-3" />
+                  <span className="whitespace-nowrap">{closingSoonCount} closing</span>
+                </button>
+              )}
+            </div>
           </div>
           {filters.view !== 'all' && (
-            <span className="flex items-center gap-2 text-sm text-purple-400">
-              <Calendar className="w-4 h-4" />
+            <span className="flex items-center gap-2 text-xs sm:text-sm text-purple-400">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {filters.view === 'open' && 'Currently accepting submissions'}
               {filters.view === 'upcoming' && 'Upcoming events'}
               {filters.view === 'deadlineSoon' && '⚡ Closing within 14 days'}

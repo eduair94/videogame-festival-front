@@ -1,4 +1,4 @@
-import { FileSpreadsheet, Gamepad2, Github, Heart } from 'lucide-react';
+import { FileSpreadsheet, Gamepad2, Github, Heart, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -90,7 +90,16 @@ export default function Footer() {
             © {new Date().getFullYear()} GameEvents. All rights reserved.
           </p>
           <p className="text-gray-500 text-sm flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 text-pink-500" /> for indie developers
+            Made with <Heart className="w-4 h-4 text-pink-500" /> by{' '}
+            <a 
+              href="https://www.linkedin.com/in/eduardo-airaudo/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1"
+            >
+              Eduardo Airaudo
+              <Linkedin className="w-3.5 h-3.5" />
+            </a>
           </p>
         </div>
       </div>

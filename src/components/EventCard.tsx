@@ -97,7 +97,7 @@ export default function EventCard({ festival, onFilterChange }: EventCardProps) 
 
   return (
     <Link href={eventUrl} className="block h-full">
-      <article className="group relative bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 h-full flex flex-col min-h-[420px]">
+      <article className="group relative bg-gray-950 border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 h-full flex flex-col min-h-[420px]">
         {/* Image Section - Fixed height */}
         <div className="relative h-40 shrink-0 overflow-hidden">
           <Image
@@ -107,12 +107,12 @@ export default function EventCard({ festival, onFilterChange }: EventCardProps) 
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-gray-950 via-transparent to-transparent pointer-events-none" />
           
           {/* Badges Container */}
           <div className="absolute inset-x-3 top-3 flex justify-between items-start">
             {/* Type Badge */}
-            <span className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${getTypeColor(festival.type)} rounded-full shadow-lg`}>
+            <span className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-white bg-linear-to-r ${getTypeColor(festival.type)} rounded-full shadow-lg`}>
               {getTypeIcon(festival.type)}
               <span className="max-w-[100px] truncate">{festival.type}</span>
             </span>
@@ -126,13 +126,13 @@ export default function EventCard({ festival, onFilterChange }: EventCardProps) 
                   e.stopPropagation();
                   onFilterChange(statusBadge.view!);
                 }}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${statusBadge.color} rounded-full shadow-lg hover:scale-105 transition-transform ${statusBadge.pulse ? 'animate-pulse' : ''}`}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-linear-to-r ${statusBadge.color} rounded-full shadow-lg hover:scale-105 transition-transform ${statusBadge.pulse ? 'animate-pulse' : ''}`}
               >
                 {isOpen ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                 {statusBadge.text}
               </button>
             ) : statusBadge ? (
-              <span className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${statusBadge.color} rounded-full shadow-lg ${statusBadge.pulse ? 'animate-pulse' : ''}`}>
+              <span className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-linear-to-r ${statusBadge.color} rounded-full shadow-lg ${statusBadge.pulse ? 'animate-pulse' : ''}`}>
                 {isOpen ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                 {statusBadge.text}
               </span>
@@ -143,12 +143,12 @@ export default function EventCard({ festival, onFilterChange }: EventCardProps) 
         {/* Content Section - Flex grow to fill remaining space */}
         <div className="p-5 flex-1 flex flex-col">
           {/* Title - Fixed 2 lines */}
-          <h3 className="text-lg font-bold text-white mb-2.5 line-clamp-2 min-h-[3.5rem] group-hover:text-purple-300 transition-colors leading-tight">
+          <h3 className="text-lg font-bold text-white mb-2.5 line-clamp-2 min-h-14 group-hover:text-purple-300 transition-colors leading-tight">
             {festival.name}
           </h3>
 
           {/* Description - Fixed 2 lines */}
-          <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[2.5rem]">
+          <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-10">
             {festival.enrichment?.description || 'No description available'}
           </p>
 
@@ -309,9 +309,6 @@ export default function EventCard({ festival, onFilterChange }: EventCardProps) 
             )}
           </div>
         </div>
-
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </article>
     </Link>
   );
