@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
-import { ArrowUpDown, Calendar, Clock, Filter, Gamepad2, Search, Timer, Trophy, X } from 'lucide-react';
+import { ArrowUpDown, Calendar, ChevronDown, ChevronUp, Clock, Filter, Gamepad2, Search, Timer, Trophy, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface FilterBarProps {
@@ -22,6 +22,11 @@ interface FilterBarProps {
 
 export default function FilterBar({ types, onFiltersChange, currentFilters }: FilterBarProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleManualToggle = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange({ ...currentFilters, search: e.target.value });
@@ -70,60 +75,104 @@ export default function FilterBar({ types, onFiltersChange, currentFilters }: Fi
 
   return (
     <>
-      <div className="sticky top-0 z-40 bg-linear-to-b from-gray-950 via-gray-950 to-gray-950/95 backdrop-blur-xl py-6 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search events, festivals, awards..."
-                value={currentFilters.search}
-                onChange={handleSearchChange}
-                autoComplete="off"
-                data-form-type="other"
-                data-lpignore="true"
-                data-1p-ignore
-                suppressHydrationWarning
-                className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
-              />
-            </div>
-            
+      <div className="sticky top-0 z-40 bg-linear-to-b from-gray-950 via-gray-950 to-gray-950/95 backdrop-blur-xl border-b border-white/10">
+        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-h-0 py-0' : 'max-h-[500px] py-6'}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
+            {/* Clickable header row to collapse */}
             <button
-              onClick={() => setIsFilterOpen(true)}
-              className={hasActiveFilters
-                ? 'flex items-center gap-2 px-6 py-3.5 rounded-xl border transition-all duration-200 bg-purple-500/20 border-purple-500/50 text-purple-300'
-                : 'flex items-center gap-2 px-6 py-3.5 rounded-xl border transition-all duration-200 bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-              }
+              onClick={handleManualToggle}
+              className="w-full flex items-center justify-end mb-3 py-1 -mt-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer group"
+              aria-label="Collapse filters"
             >
-              <Filter className="w-5 h-5" />
-              <span className="font-medium">Filters</span>
-              {hasActiveFilters && (
-                <span className="ml-1 px-2 py-0.5 text-xs bg-purple-500 text-white rounded-full">
-                  Active
-                </span>
-              )}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-400 group-hover:text-white bg-white/5 group-hover:bg-white/10 rounded-lg transition-all">
+                <ChevronUp className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Collapse</span>
+              </div>
             </button>
-          </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
-            {[
-              { id: 'all', label: 'All Events', icon: <Gamepad2 className="w-4 h-4" /> },
-              { id: 'upcoming', label: 'Upcoming Events', icon: <Calendar className="w-4 h-4" /> },
-              { id: 'open', label: 'Open Submissions', icon: <Clock className="w-4 h-4" /> },
-              { id: 'deadlineSoon', label: '⚡ Deadline Soon', icon: <Timer className="w-4 h-4" /> },
-            ].map((view) => (
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search events, festivals, awards..."
+                  value={currentFilters.search}
+                  onChange={handleSearchChange}
+                  autoComplete="off"
+                  data-form-type="other"
+                  data-lpignore="true"
+                  data-1p-ignore
+                  suppressHydrationWarning
+                  className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
+                />
+              </div>
+              
               <button
-                key={view.id}
-                onClick={() => handleViewChange(view.id as 'all' | 'open' | 'upcoming' | 'deadlineSoon')}
-                className={'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ' + getViewButtonClass(view.id)}
+                onClick={() => setIsFilterOpen(true)}
+                className={hasActiveFilters
+                  ? 'flex items-center gap-2 px-6 py-3.5 rounded-xl border transition-all duration-200 bg-purple-500/20 border-purple-500/50 text-purple-300'
+                  : 'flex items-center gap-2 px-6 py-3.5 rounded-xl border transition-all duration-200 bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                }
               >
-                {view.icon}
-                {view.label}
+                <Filter className="w-5 h-5" />
+                <span className="font-medium">Filters</span>
+                {hasActiveFilters && (
+                  <span className="ml-1 px-2 py-0.5 text-xs bg-purple-500 text-white rounded-full">
+                    Active
+                  </span>
+                )}
               </button>
-            ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-4">
+              {[
+                { id: 'all', label: 'All Events', icon: <Gamepad2 className="w-4 h-4" /> },
+                { id: 'upcoming', label: 'Upcoming Events', icon: <Calendar className="w-4 h-4" /> },
+                { id: 'open', label: 'Open Submissions', icon: <Clock className="w-4 h-4" /> },
+                { id: 'deadlineSoon', label: '⚡ Deadline Soon', icon: <Timer className="w-4 h-4" /> },
+              ].map((view) => (
+                <button
+                  key={view.id}
+                  onClick={() => handleViewChange(view.id as 'all' | 'open' | 'upcoming' | 'deadlineSoon')}
+                  className={'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ' + getViewButtonClass(view.id)}
+                >
+                  {view.icon}
+                  {view.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Collapsed mini bar with current filter info - clickable to expand */}
+        {isCollapsed && (
+          <button 
+            onClick={handleManualToggle}
+            className="w-full py-2 px-4 sm:px-6 lg:px-8 hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            <div className="max-w-7xl mx-auto flex items-center gap-3 text-sm text-gray-400">
+              <Filter className="w-4 h-4" />
+              <span>
+                {currentFilters.view === 'all' ? 'All Events' : 
+                 currentFilters.view === 'open' ? 'Open Submissions' :
+                 currentFilters.view === 'upcoming' ? 'Upcoming Events' : 'Deadline Soon'}
+              </span>
+              {currentFilters.type && (
+                <>
+                  <span className="text-gray-600">•</span>
+                  <span>{currentFilters.type}</span>
+                </>
+              )}
+              {currentFilters.search && (
+                <>
+                  <span className="text-gray-600">•</span>
+                  <span className="truncate max-w-32">&quot;{currentFilters.search}&quot;</span>
+                </>
+              )}
+              <ChevronDown className="w-4 h-4 ml-auto text-gray-500" />
+            </div>
+          </button>
+        )}
       </div>
 
       <Dialog open={isFilterOpen} onClose={() => setIsFilterOpen(false)} className="relative z-50">

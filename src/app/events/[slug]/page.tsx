@@ -7,7 +7,6 @@ import {
     ArrowLeft,
     Calendar,
     CheckCircle2,
-    ChevronRight,
     Clock,
     DollarSign,
     ExternalLink,
@@ -405,10 +404,14 @@ export default async function EventPage({ params }: PageProps) {
                   href={festival.eventOfficialPage}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-5 py-3 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all sm:shrink-0"
+                  className={`flex items-center justify-center gap-2 px-5 py-3 font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all sm:shrink-0 ${
+                    isOpen 
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-emerald-500/25'
+                      : 'bg-gray-600 hover:bg-gray-500 text-white hover:shadow-gray-500/25'
+                  }`}
                 >
-                  <Globe className="w-5 h-5" />
-                  Official Website
+                  <FileText className="w-5 h-5" />
+                  {isOpen ? 'Submit Your Game' : 'View Submission Page'}
                   <ExternalLink className="w-4 h-4 opacity-70" />
                 </a>
               )}
@@ -556,17 +559,21 @@ export default async function EventPage({ params }: PageProps) {
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Take Action</h2>
               
               <div className="space-y-3">
-                {/* Primary: Official Website */}
+                {/* Primary: Submission Form (eventOfficialPage is the submission link) */}
                 {festival.eventOfficialPage && (
                   <a
                     href={festival.eventOfficialPage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between w-full px-4 py-3.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all group"
+                    className={`flex items-center justify-between w-full px-4 py-3.5 font-medium rounded-xl transition-all group ${
+                      isOpen 
+                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/20 hover:scale-[1.01] active:scale-[0.99]' 
+                        : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                    }`}
                   >
                     <span className="flex items-center gap-3">
-                      <Globe className="w-5 h-5" />
-                      Official Website
+                      <FileText className="w-5 h-5" />
+                      {isOpen ? '📝 Submit Your Game' : 'Submission Page (Closed)'}
                     </span>
                     <ExternalLink className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                   </a>
@@ -585,26 +592,6 @@ export default async function EventPage({ params }: PageProps) {
                       View on Steam
                     </span>
                     <ExternalLink className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </a>
-                )}
-
-                {/* Submission Form */}
-                {festival.submissionForm && (
-                  <a
-                    href={festival.submissionForm}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center justify-between w-full px-4 py-3 font-medium rounded-xl transition-all group ${
-                      isOpen 
-                        ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/30' 
-                        : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <FileText className="w-5 h-5" />
-                      {isOpen ? 'Submit Your Game' : 'Submission Form'}
-                    </span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </a>
                 )}
               </div>
@@ -677,10 +664,14 @@ export default async function EventPage({ params }: PageProps) {
             href={festival.eventOfficialPage}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl"
+            className={`flex items-center justify-center gap-2 w-full py-3.5 font-semibold rounded-xl ${
+              isOpen
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-gray-600 hover:bg-gray-500 text-white'
+            }`}
           >
-            <Globe className="w-5 h-5" />
-            Visit Official Website
+            <FileText className="w-5 h-5" />
+            {isOpen ? 'Submit Your Game' : 'View Submission Page'}
             <ExternalLink className="w-4 h-4 opacity-70" />
           </a>
         </div>

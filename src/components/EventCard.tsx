@@ -9,9 +9,10 @@ import { useState } from 'react';
 
 interface EventCardProps {
   festival: Festival;
+  onFilterChange?: (view: 'open' | 'deadlineSoon') => void;
 }
 
-export default function EventCard({ festival }: EventCardProps) {
+export default function EventCard({ festival, onFilterChange }: EventCardProps) {
   const [showComments, setShowComments] = useState(false);
   
   // Use API fields directly
@@ -74,13 +75,14 @@ export default function EventCard({ festival }: EventCardProps) {
 
   const getStatusBadge = () => {
     if (isOpen && daysToSubmit !== null && daysToSubmit >= 0) {
-      if (daysToSubmit <= 3) {
-        return { text: 'Closing Soon', color: 'from-red-500 to-orange-500', pulse: true };
+      // Use 14 days threshold to be consistent with "Deadline Soon" filter
+      if (daysToSubmit <= 14) {
+        return { text: 'Closing Soon', color: 'from-red-500 to-orange-500', pulse: daysToSubmit <= 3, view: 'deadlineSoon' as const };
       }
-      return { text: 'Open', color: 'from-green-500 to-emerald-500', pulse: false };
+      return { text: 'Open', color: 'from-green-500 to-emerald-500', pulse: false, view: 'open' as const };
     }
     if (daysToSubmit !== null && daysToSubmit < 0) {
-      return { text: 'Closed', color: 'from-gray-600 to-gray-700', pulse: false };
+      return { text: 'Closed', color: 'from-gray-600 to-gray-700', pulse: false, view: null };
     }
     return null;
   };
@@ -115,13 +117,26 @@ export default function EventCard({ festival }: EventCardProps) {
               <span className="max-w-[100px] truncate">{festival.type}</span>
             </span>
 
-            {/* Status Badge */}
-            {statusBadge && (
+            {/* Status Badge - Clickable */}
+            {statusBadge && statusBadge.view && onFilterChange ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onFilterChange(statusBadge.view!);
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${statusBadge.color} rounded-full shadow-lg hover:scale-105 transition-transform ${statusBadge.pulse ? 'animate-pulse' : ''}`}
+              >
+                {isOpen ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                {statusBadge.text}
+              </button>
+            ) : statusBadge ? (
               <span className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${statusBadge.color} rounded-full shadow-lg ${statusBadge.pulse ? 'animate-pulse' : ''}`}>
                 {isOpen ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                 {statusBadge.text}
               </span>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -257,21 +272,25 @@ export default function EventCard({ festival }: EventCardProps) {
 
             {/* Direct Links */}
             {(festival.eventOfficialPage || festival.latestSteamPage) && (
-              <div className="flex gap-2">
-                {festival.eventOfficialPage && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      window.open(festival.eventOfficialPage, '_blank', 'noopener,noreferrer');
-                    }}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Official</span>
-                  </button>
-                )}
+              <div className="flex flex-wrap gap-2">
+                {festival.eventOfficialPage && (() => {
+                  const links = festival.eventOfficialPage.split('\n').filter(link => link.trim());
+                  return links.map((link, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(link.trim(), '_blank', 'noopener,noreferrer');
+                      }}
+                      className="flex-1 min-w-24 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>{links.length > 1 ? `Submit ${index + 1}` : 'Submit your game'}</span>
+                    </button>
+                  ));
+                })()}
                 {festival.latestSteamPage && (
                   <button
                     type="button"
@@ -280,7 +299,7 @@ export default function EventCard({ festival }: EventCardProps) {
                       e.stopPropagation();
                       window.open(festival.latestSteamPage, '_blank', 'noopener,noreferrer');
                     }}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+                    className="flex-1 min-w-20 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                   >
                     <Gamepad2 className="w-3.5 h-3.5" />
                     <span>Steam</span>

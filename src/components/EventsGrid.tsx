@@ -231,7 +231,7 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
   // Calculate summary stats
   const openCount = filteredFestivals.filter(f => f.submissionOpen === true).length;
   const closingSoonCount = filteredFestivals.filter(f => 
-    f.submissionOpen === true && f.daysToSubmit !== undefined && f.daysToSubmit <= 7
+    f.submissionOpen === true && f.daysToSubmit !== undefined && f.daysToSubmit !== null && f.daysToSubmit >= 0 && f.daysToSubmit <= 14
   ).length;
 
   return (
@@ -250,16 +250,30 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
               Showing <span className="text-white font-medium">{filteredFestivals.length}</span> events
             </p>
             {openCount > 0 && (
-              <span className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-green-500/20 text-green-400 rounded-full">
+              <button
+                onClick={() => updateFilters({ ...filters, view: 'open' })}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
+                  filters.view === 'open' 
+                    ? 'bg-green-500/30 text-green-300 ring-1 ring-green-500/50' 
+                    : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                }`}
+              >
                 <Clock className="w-3 h-3" />
                 {openCount} open
-              </span>
+              </button>
             )}
             {closingSoonCount > 0 && (
-              <span className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-orange-500/20 text-orange-400 rounded-full animate-pulse">
+              <button
+                onClick={() => updateFilters({ ...filters, view: 'deadlineSoon' })}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 ${
+                  filters.view === 'deadlineSoon'
+                    ? 'bg-orange-500/30 text-orange-300 ring-1 ring-orange-500/50'
+                    : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 animate-pulse'
+                }`}
+              >
                 <Timer className="w-3 h-3" />
                 {closingSoonCount} closing soon
-              </span>
+              </button>
             )}
           </div>
           {filters.view !== 'all' && (
@@ -300,7 +314,11 @@ export default function EventsGrid({ initialFestivals, types }: EventsGridProps)
             {filteredFestivals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredFestivals.map((festival) => (
-                  <EventCard key={festival._id} festival={festival} />
+                  <EventCard 
+                    key={festival._id} 
+                    festival={festival} 
+                    onFilterChange={(view) => updateFilters({ ...filters, view })}
+                  />
                 ))}
               </div>
             ) : (
