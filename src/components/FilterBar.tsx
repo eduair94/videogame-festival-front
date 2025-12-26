@@ -2,20 +2,20 @@
 
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import {
-  ArrowDownAZ,
-  ArrowUpDown,
-  Calendar,
-  Check,
-  ChevronDown,
-  Clock,
-  Filter,
-  Gamepad2,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  Timer,
-  Trophy,
-  X
+    ArrowDownAZ,
+    ArrowUpDown,
+    Calendar,
+    Check,
+    ChevronDown,
+    Clock,
+    Filter,
+    Gamepad2,
+    Search,
+    SlidersHorizontal,
+    Sparkles,
+    Timer,
+    Trophy,
+    X
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

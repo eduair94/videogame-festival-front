@@ -13,16 +13,14 @@ type ViewOption = 'all' | 'open' | 'upcoming' | 'deadlineSoon';
 interface EventsGridProps {
   initialFestivals: Festival[];
   types: string[];
-  initialView?: ViewOption;
 }
 
-export default function EventsGrid({ initialFestivals, types, initialView = 'open' }: EventsGridProps) {
+export default function EventsGrid({ initialFestivals, types }: EventsGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [festivals, setFestivals] = useState<Festival[]>(initialFestivals);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isInitialMount = useRef(true);
   
   // Get filters from URL query parameters
   const getFiltersFromURL = useCallback(() => {
@@ -122,7 +120,7 @@ export default function EventsGrid({ initialFestivals, types, initialView = 'ope
       params.set('limit', '500');
       
       const url = filters.view === 'all' ? `${endpoint}?${params.toString()}` : endpoint;
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
       
       if (data.success) {
@@ -138,16 +136,10 @@ export default function EventsGrid({ initialFestivals, types, initialView = 'ope
   }, [filters.view, filters.type, filters.search]);
 
   useEffect(() => {
-    // Skip initial fetch if view matches the initialView (data already loaded from server)
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      // Only skip if the current view matches the initial view and no other filters are active
-      if (filters.view === initialView && !filters.type && !filters.search) {
-        return;
-      }
-    }
+    // Always fetch fresh data from the API (client-side with no-cache)
+    // This ensures we bypass any Vercel edge cache
     fetchFilteredFestivals();
-  }, [filters.view, filters.type, filters.search, fetchFilteredFestivals, initialView]);
+  }, [filters.view, filters.type, filters.search, fetchFilteredFestivals]);
 
   // Client-side filtering and sorting using API fields
   const filteredFestivals = useMemo(() => {

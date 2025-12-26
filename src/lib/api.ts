@@ -72,7 +72,7 @@ export async function fetchFestivalTypes() {
 
 export async function fetchOpenFestivals() {
   const res = await fetch(`${API_BASE_URL}/api/festivals/open`, {
-    next: { revalidate: 300 },
+    next: { revalidate: 60 },
   });
   
   if (!res.ok) {
