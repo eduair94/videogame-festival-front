@@ -27,17 +27,17 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/?view=all" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                <Link href="/?view=all#events" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
                   All Events
                 </Link>
               </li>
               <li>
-                <Link href="/?view=open" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                <Link href="/?view=open#events" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
                   Open Submissions
                 </Link>
               </li>
               <li>
-                <Link href="/?view=upcoming" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                <Link href="/?view=upcoming#events" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
                   Upcoming Events
                 </Link>
               </li>

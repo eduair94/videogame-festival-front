@@ -90,6 +90,14 @@ export default function FilterBar({ types, onFiltersChange, currentFilters, resu
     }
   }, [isSearchExpanded]);
 
+  // Sync searchValue with currentFilters.search when it changes externally (URL navigation)
+  useEffect(() => {
+    if (searchValue !== currentFilters.search) {
+      setSearchValue(currentFilters.search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFilters.search]);
+
   // Debounced search handler
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

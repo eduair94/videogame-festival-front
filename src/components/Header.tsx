@@ -77,13 +77,13 @@ export default function Header() {
 
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/#events"
+              href="/?view=all#events"
               className="px-8 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 transition-all duration-200"
             >
               Explore Events
             </Link>
             <Link
-              href="/?view=open"
+              href="/?view=open#events"
               className="px-8 py-3.5 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-200"
             >
               Open Submissions
